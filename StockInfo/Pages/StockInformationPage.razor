@@ -1,0 +1,32 @@
+﻿@page "/stockInfo"
+@using HtmlAgilityPack;
+<h3>StockInformationPage</h3>
+
+<input @bind-value="enteredTicket"/>
+<p>Entered Value: @enteredTicket</p>
+
+@if (enteredTicket == String.Empty)
+{
+    <p>Provide ticket to input box</p>
+}
+else
+{
+    <p>@GetPrice(enteredTicket)</p>
+}
+
+
+
+@code {  
+    string enteredTicket = "";
+    string price = "";
+
+    private string GetPrice(string ticket)
+    {
+        var html = @$"https://finance.yahoo.com/quote/{ticket}";
+        HtmlWeb web = new HtmlWeb();
+        var htmlDoc = web.Load(html);
+        var PriceValue = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)']");
+        return (PriceValue.InnerText);
+    }
+
+}
