@@ -1,32 +1,73 @@
 ﻿@page "/stockInfo"
-@using HtmlAgilityPack;
-<h3>StockInformationPage</h3>
+@using Models
+@inject Models.StockService stockService
+<h3>StockInformation Page</h3>
 
-<input @bind-value="enteredTicket"/>
-<p>Entered Value: @enteredTicket</p>
+<button @onclick="@AddStockToDB">Add @enteredTicket To DB</button>
 
+<input placeholder="Ticket" @bind-value="enteredTicket"/>
 @if (enteredTicket == String.Empty)
 {
     <p>Provide ticket to input box</p>
 }
 else
 {
-    <p>@GetPrice(enteredTicket)</p>
+    <p>@GetPrice(enteredTicket) @currency</p>
+    @if (enteredTicket != String.Empty)
+    {
+        <p>Entered Value: @((enteredTicket).ToUpper()) — @companyname</p>
+    }
 }
 
 
 
-@code {  
+@code {
+    private async Task AddStockToDB()
+    {
+        await stockService.InsertStockAsync(new Stock
+        {
+            CompanyName = companyname,
+            Currency = currency,
+            Price = price,
+            Ticket = enteredTicket,
+            LastUpdate = DateTime.Now
+        });
+    }
+
     string enteredTicket = "";
+    string companyname = "";
     string price = "";
+    string currency = "";
 
     private string GetPrice(string ticket)
     {
+        companyname = "";
         var html = @$"https://finance.yahoo.com/quote/{ticket}";
         HtmlWeb web = new HtmlWeb();
         var htmlDoc = web.Load(html);
         var PriceValue = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)']");
-        return (PriceValue.InnerText);
+        var CompanyName = htmlDoc.DocumentNode.SelectSingleNode("//h1[@class='D(ib) Fz(18px)']");
+        HtmlNode CurrencyString = htmlDoc.DocumentNode.SelectSingleNode("//span[@data-reactid='9']");
+        while (CurrencyString == null)
+        {
+            htmlDoc = web.Load(html);
+            CurrencyString = htmlDoc.DocumentNode.SelectSingleNode("//span[@data-reactid='9']");
+        }
+        Regex regex = new Regex(@"\w*$");
+        currency = (regex.Match(CurrencyString.InnerText).Value);
+        if (CompanyName != null)
+        {
+            companyname = HttpUtility.HtmlDecode(CompanyName.InnerText);
+        }
+        if (PriceValue != null)
+        {
+            price = PriceValue.InnerText;
+            return (PriceValue.InnerText);
+        }
+        else
+        {
+            return "Not found";
+        }
     }
 
 }

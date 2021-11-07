@@ -83,8 +83,29 @@ using StockInfo.Shared;
 #line hidden
 #nullable disable
 #nullable restore
-#line 2 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
+#line 11 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
 using HtmlAgilityPack;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 12 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
+using System.Web;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 13 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
+using System.Text.RegularExpressions;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 2 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
+using Models;
 
 #line default
 #line hidden
@@ -98,24 +119,61 @@ using HtmlAgilityPack;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 19 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
-         
+#line 24 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
+       
+    private async Task AddStockToDB()
+    {
+        await stockService.InsertStockAsync(new Stock
+        {
+            CompanyName = companyname,
+            Currency = currency,
+            Price = price,
+            Ticket = enteredTicket,
+            LastUpdate = DateTime.Now
+        });
+    }
+
     string enteredTicket = "";
+    string companyname = "";
     string price = "";
+    string currency = "";
 
     private string GetPrice(string ticket)
     {
+        companyname = "";
         var html = @$"https://finance.yahoo.com/quote/{ticket}";
         HtmlWeb web = new HtmlWeb();
         var htmlDoc = web.Load(html);
         var PriceValue = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)']");
-        return (PriceValue.InnerText);
+        var CompanyName = htmlDoc.DocumentNode.SelectSingleNode("//h1[@class='D(ib) Fz(18px)']");
+        HtmlNode CurrencyString = htmlDoc.DocumentNode.SelectSingleNode("//span[@data-reactid='9']");
+        while (CurrencyString == null)
+        {
+            htmlDoc = web.Load(html);
+            CurrencyString = htmlDoc.DocumentNode.SelectSingleNode("//span[@data-reactid='9']");
+        }
+        Regex regex = new Regex(@"\w*$");
+        currency = (regex.Match(CurrencyString.InnerText).Value);
+        if (CompanyName != null)
+        {
+            companyname = HttpUtility.HtmlDecode(CompanyName.InnerText);
+        }
+        if (PriceValue != null)
+        {
+            price = PriceValue.InnerText;
+            return (PriceValue.InnerText);
+        }
+        else
+        {
+            return "Not found";
+        }
     }
 
 
 #line default
 #line hidden
 #nullable disable
+        [global::Microsoft.AspNetCore.Components.InjectAttribute] private Models.StockService stockService { get; set; }
     }
 }
 #pragma warning restore 1591

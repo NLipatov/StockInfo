@@ -28,10 +28,11 @@ namespace StockInfo
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDBContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
+            services.AddScoped<StockService>();
+            services.AddDbContext<AppDBContext>(item => item.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

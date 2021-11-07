@@ -9,8 +9,11 @@ namespace StockInfo.Models
     public class Stock
     {
         [Key]
-        public string ticket { get; set; }
+        public string Ticket { get; set; }
         [Required]
-        public string price { get; set; }
+        public string Currency { get; set; }
+        public string Price { get; set; }
+        public string CompanyName { get; set; }
+        public DateTime LastUpdate { get; set; }
     }
 }

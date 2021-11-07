@@ -405,3 +405,4 @@ C:\Users\Admin\source\repos\StockInfo\StockInfo\obj\Debug\net5.0\StockInfo.genru
 C:\Users\Admin\source\repos\StockInfo\StockInfo\bin\Debug\net5.0\HtmlAgilityPack.dll
 C:\Users\Admin\source\repos\StockInfo\StockInfo\obj\Debug\net5.0\RazorDeclaration\Pages\StockInformationPage.razor.g.cs
 C:\Users\Admin\source\repos\StockInfo\StockInfo\obj\Debug\net5.0\Razor\Pages\StockInformationPage.razor.g.cs
+C:\Users\Admin\source\repos\StockInfo\StockInfo\obj\Debug\net5.0\StockInfo.csproj.AssemblyReference.cache

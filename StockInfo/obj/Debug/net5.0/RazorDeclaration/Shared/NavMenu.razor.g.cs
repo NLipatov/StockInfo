@@ -82,6 +82,27 @@ using StockInfo.Shared;
 #line default
 #line hidden
 #nullable disable
+#nullable restore
+#line 11 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
+using HtmlAgilityPack;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 12 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
+using System.Web;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 13 "C:\Users\Admin\source\repos\StockInfo\StockInfo\_Imports.razor"
+using System.Text.RegularExpressions;
+
+#line default
+#line hidden
+#nullable disable
     public partial class NavMenu : Microsoft.AspNetCore.Components.ComponentBase
     {
         #pragma warning disable 1998
