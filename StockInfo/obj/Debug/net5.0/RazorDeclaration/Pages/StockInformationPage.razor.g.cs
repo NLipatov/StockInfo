@@ -119,18 +119,56 @@ using Models;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 24 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
+#line 40 "C:\Users\Admin\source\repos\StockInfo\StockInfo\Pages\StockInformationPage.razor"
        
-    private async Task AddStockToDB()
+    List<Stock> StocksStoredInDb = new();
+    protected override async void OnInitialized()
     {
-        await stockService.InsertStockAsync(new Stock
+        StocksStoredInDb = await stockService.GetAllStocksAsync();
+    }
+
+    string DbStoringStatus = "waiting for answer";
+
+
+    private async Task<bool> AddOrUpdate()
+    {
+        Stock stockStoredInDb = StocksStoredInDb.FirstOrDefault(s => s.Ticket == enteredTicket);
+        if (stockStoredInDb != null)
         {
-            CompanyName = companyname,
-            Currency = currency,
-            Price = price,
-            Ticket = enteredTicket,
-            LastUpdate = DateTime.Now
-        });
+            stockStoredInDb.Price = price;
+            stockStoredInDb.LastUpdate = DateTime.Now;
+            bool status = await stockService.UpdateStockAsync(stockStoredInDb);
+            if (status == true)
+            {
+                DbStoringStatus = $"succescfully updated {companyname}!";
+            }
+            return status;
+        }
+        else
+        {
+            try
+            {
+                bool status = await stockService.InsertStockAsync(new Stock
+                {
+                    CompanyName = companyname,
+                    Currency = currency,
+                    Price = price,
+                    Ticket = enteredTicket,
+                    LastUpdate = DateTime.Now
+                });
+
+                if (status == true)
+                {
+                    DbStoringStatus = $"succescfully stored {companyname}!";
+                }
+                return status;
+            }
+            catch
+            {
+                DbStoringStatus = "Error";
+                return false;
+            }
+        }
     }
 
     string enteredTicket = "";

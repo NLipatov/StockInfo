@@ -3,9 +3,25 @@
 @inject Models.StockService stockService
 <h3>StockInformation Page</h3>
 
-<button @onclick="@AddStockToDB">Add @enteredTicket To DB</button>
+@if (enteredTicket != String.Empty)
+{
+    if (StocksStoredInDb.FirstOrDefault(s => s.Ticket == enteredTicket) != null)
+    {
+        <button @onclick="@AddOrUpdate">Update @enteredTicket.ToUpper() record in DB</button>
+    }
+    else
+    {
+        <button @onclick="@AddOrUpdate">Add @enteredTicket.ToUpper() To DB</button>
+    }
+}
+else
+{
+<button>Enter ticket →</button>
+}
 
-<input placeholder="Ticket" @bind-value="enteredTicket"/>
+<input placeholder="Ticket" @bind-value="enteredTicket" />
+
+<p>Answer from DB Service: @DbStoringStatus</p>
 @if (enteredTicket == String.Empty)
 {
     <p>Provide ticket to input box</p>
@@ -22,16 +38,54 @@ else
 
 
 @code {
-    private async Task AddStockToDB()
+    List<Stock> StocksStoredInDb = new();
+    protected override async void OnInitialized()
     {
-        await stockService.InsertStockAsync(new Stock
+        StocksStoredInDb = await stockService.GetAllStocksAsync();
+    }
+
+    string DbStoringStatus = "waiting for answer";
+
+
+    private async Task<bool> AddOrUpdate()
+    {
+        Stock stockStoredInDb = StocksStoredInDb.FirstOrDefault(s => s.Ticket == enteredTicket);
+        if (stockStoredInDb != null)
         {
-            CompanyName = companyname,
-            Currency = currency,
-            Price = price,
-            Ticket = enteredTicket,
-            LastUpdate = DateTime.Now
-        });
+            stockStoredInDb.Price = price;
+            stockStoredInDb.LastUpdate = DateTime.Now;
+            bool status = await stockService.UpdateStockAsync(stockStoredInDb);
+            if (status == true)
+            {
+                DbStoringStatus = $"succescfully updated {companyname}!";
+            }
+            return status;
+        }
+        else
+        {
+            try
+            {
+                bool status = await stockService.InsertStockAsync(new Stock
+                {
+                    CompanyName = companyname,
+                    Currency = currency,
+                    Price = price,
+                    Ticket = enteredTicket,
+                    LastUpdate = DateTime.Now
+                });
+
+                if (status == true)
+                {
+                    DbStoringStatus = $"succescfully stored {companyname}!";
+                }
+                return status;
+            }
+            catch
+            {
+                DbStoringStatus = "Error";
+                return false;
+            }
+        }
     }
 
     string enteredTicket = "";
